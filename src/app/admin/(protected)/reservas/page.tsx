@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AdminNav } from "@/components/admin-nav";
 import { TIME_RATE_LABELS } from "@/lib/timerate";
@@ -116,22 +117,35 @@ export default async function AdminReservasPage() {
                   {(reservation.status === "PENDING" || reservation.status === "CONFIRMED") && (
                     <>
                       <form action={updateReservationStatus.bind(null, reservation.id, "NO_SHOW")}>
-                        <Button type="submit" size="sm" variant="outline">
+                        <ConfirmSubmitButton
+                          size="sm"
+                          variant="outline"
+                          confirmMessage="¿Seguro que quieres marcar esta reserva como 'no llegó'?"
+                        >
                           No llegó
-                        </Button>
+                        </ConfirmSubmitButton>
                       </form>
                       <form action={updateReservationStatus.bind(null, reservation.id, "CANCELLED")}>
-                        <Button type="submit" size="sm" variant="outline" className="text-destructive">
+                        <ConfirmSubmitButton
+                          size="sm"
+                          variant="outline"
+                          className="text-destructive"
+                          confirmMessage="¿Seguro que quieres cancelar esta reserva?"
+                        >
                           Cancelar
-                        </Button>
+                        </ConfirmSubmitButton>
                       </form>
                     </>
                   )}
                   {(reservation.status === "CANCELLED" || reservation.status === "NO_SHOW") && (
                     <form action={updateReservationStatus.bind(null, reservation.id, "CONFIRMED")}>
-                      <Button type="submit" size="sm" variant="outline">
+                      <ConfirmSubmitButton
+                        size="sm"
+                        variant="outline"
+                        confirmMessage="¿Seguro que quieres reabrir esta reserva como confirmada?"
+                      >
                         Reabrir como confirmada
-                      </Button>
+                      </ConfirmSubmitButton>
                     </form>
                   )}
                 </div>

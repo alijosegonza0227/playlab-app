@@ -3,9 +3,10 @@ import { formatCop } from "@/lib/money";
 import { lineItemLabel } from "@/lib/line-item-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AdminNav } from "@/components/admin-nav";
-import { markOrderCompleted, cancelOrder, reopenOrder } from "./actions";
+import { markOrderCompleted, unmarkOrderCompleted, cancelOrder, reopenOrder } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -89,17 +90,37 @@ export default async function AdminOrdersPage() {
                       </Button>
                     </form>
                     <form action={cancelOrder.bind(null, order.id)}>
-                      <Button type="submit" size="sm" variant="outline" className="text-destructive">
+                      <ConfirmSubmitButton
+                        size="sm"
+                        variant="outline"
+                        className="text-destructive"
+                        confirmMessage="¿Seguro que quieres cancelar este pedido?"
+                      >
                         Cancelar
-                      </Button>
+                      </ConfirmSubmitButton>
                     </form>
                   </>
                 )}
+                {order.status === "COMPLETED" && (
+                  <form action={unmarkOrderCompleted.bind(null, order.id)}>
+                    <ConfirmSubmitButton
+                      size="sm"
+                      variant="outline"
+                      confirmMessage="¿Seguro que quieres desmarcar este pedido como entregado? Va a volver a 'Confirmado', pendiente por entregar."
+                    >
+                      Desmarcar entregado
+                    </ConfirmSubmitButton>
+                  </form>
+                )}
                 {order.status === "CANCELLED" && (
                   <form action={reopenOrder.bind(null, order.id)}>
-                    <Button type="submit" size="sm" variant="outline">
+                    <ConfirmSubmitButton
+                      size="sm"
+                      variant="outline"
+                      confirmMessage="¿Seguro que quieres reabrir este pedido como confirmado?"
+                    >
                       Reabrir como confirmado
-                    </Button>
+                    </ConfirmSubmitButton>
                   </form>
                 )}
               </div>

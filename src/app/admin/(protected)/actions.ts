@@ -11,6 +11,14 @@ export async function markOrderCompleted(orderId: string) {
   revalidatePath("/admin");
 }
 
+export async function unmarkOrderCompleted(orderId: string) {
+  await prisma.order.update({
+    where: { id: orderId, status: "COMPLETED" },
+    data: { status: "CONFIRMED" },
+  });
+  revalidatePath("/admin");
+}
+
 export async function cancelOrder(orderId: string) {
   await prisma.order.update({
     where: { id: orderId },
