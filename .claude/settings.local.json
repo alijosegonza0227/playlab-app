@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "PowerShell(node --version)",
+      "PowerShell(npm --version)",
+      "PowerShell(docker --version 2>$null)",
+      "PowerShell(npx create-next-app@latest --help)",
+      "PowerShell(npm install)",
+      "PowerShell(npm install prisma @prisma/client zod)",
+      "PowerShell(npm install -D tsx)",
+      "PowerShell(npx prisma generate)",
+      "WebFetch(domain:pris.ly)",
+      "WebFetch(domain:www.prisma.io)",
+      "PowerShell(npm install @prisma/adapter-pg pg dotenv)",
+      "PowerShell(npm install -D @types/pg)",
+      "PowerShell(npx prisma migrate dev --name init)",
+      "PowerShell(npm run db:seed)",
+      "PowerShell(npx shadcn@latest init --help)",
+      "PowerShell(npx shadcn@latest add card badge separator input label textarea sheet sonner -y)",
+      "PowerShell(npx prisma migrate dev --name order_customer_optional)",
+      "PowerShell(npm install server-only)",
+      "PowerShell(npm run build)",
+      "PowerShell(npx @next/codemod@canary middleware-to-proxy . --force 2>&1)",
+      "PowerShell(npm run dev)",
+      "PowerShell(git init)",
+      "PowerShell(git add -A)",
+      "PowerShell(winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements)"
+    ]
+  }
+}

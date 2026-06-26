@@ -1,0 +1,282 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------- Catálogo ----------
+
+enum ProductCategory {
+  FOOD
+  SNACK
+  PIZZA
+  KIDS_MENU
+  GROUP_PLATTER
+  DESSERT
+  DRINK
+  COCKTAIL
+  BABY_MENU
+  DECORATION
+  ADDITION
+}
+
+model Product {
+  id          String          @id @default(cuid())
+  name        String          @unique
+  category    ProductCategory
+  priceCents  Int
+  description String?
+  imageUrl    String?
+  active      Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  orderLineItems OrderLineItem[]
+}
+
+enum TimeRateDuration {
+  MIN_30
+  HOUR_1
+  HOUR_2
+  UNLIMITED
+}
+
+model TimeRate {
+  id              String           @id @default(cuid())
+  duration        TimeRateDuration @unique
+  priceCents      Int
+  extraAdultCents Int
+  active          Boolean          @default(true)
+
+  orderLineItems OrderLineItem[]
+}
+
+enum PromotionDay {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum PromotionRuleType {
+  PERCENT_OFF
+  BUY_X_GET_Y
+  FIXED_COMBO_PRICE
+}
+
+// `details` guarda la configuración específica de cada tipo de regla (ej. producto destino,
+// porcentaje, combo) para no tener que migrar el esquema cada vez que cambia una promo.
+model PromotionRule {
+  id        String            @id @default(cuid())
+  name      String
+  dayOfWeek PromotionDay?
+  ruleType  PromotionRuleType
+  active    Boolean           @default(true)
+  details   Json
+  createdAt DateTime          @default(now())
+}
+
+// ---------- Clientes ----------
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  email     String?
+  createdAt DateTime @default(now())
+
+  orders         Order[]
+  reservations   Reservation[]
+  paymentSources PaymentSource[]
+}
+
+// ---------- Carrito / Orden ----------
+
+enum OrderStatus {
+  CART
+  PENDING_PAYMENT
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum FulfillmentType {
+  DELIVERY
+  PARK_VISIT
+  BIRTHDAY_PARTY
+}
+
+model Order {
+  id               String            @id @default(cuid())
+  customerId       String?
+  customer         Customer?         @relation(fields: [customerId], references: [id])
+  status           OrderStatus       @default(CART)
+  fulfillmentTypes FulfillmentType[]
+  deliveryAddress  String?
+  subtotalCents    Int               @default(0)
+  discountCents    Int               @default(0)
+  totalCents       Int               @default(0)
+  amountPaidCents  Int               @default(0)
+  amountDueCents   Int               @default(0)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  lineItems    OrderLineItem[]
+  payments     Payment[]
+  reservations Reservation[]
+}
+
+enum OrderLineType {
+  PRODUCT
+  PARK_VISIT_SLOT
+  BIRTHDAY_PARTY_COMPONENT
+}
+
+enum BirthdayComponentType {
+  TIME_RATE
+  FOOD_ITEM
+  DECORATION_ITEM
+  PRIVATE_SPACE
+}
+
+// Polimórfica por `lineType`. No existe un "BirthdayPackage" con precio fijo: una fiesta es
+// la suma de sus líneas BIRTHDAY_PARTY_COMPONENT agrupadas por `partyGroupId`.
+model OrderLineItem {
+  id                    String                 @id @default(cuid())
+  orderId               String
+  order                 Order                  @relation(fields: [orderId], references: [id])
+  lineType              OrderLineType
+  productId             String?
+  product               Product?               @relation(fields: [productId], references: [id])
+  timeRateId            String?
+  timeRate              TimeRate?              @relation(fields: [timeRateId], references: [id])
+  quantity              Int                    @default(1)
+  unitPriceCents        Int
+  childrenCount         Int?
+  extraAdultsCount      Int?
+  birthdayComponentType BirthdayComponentType?
+  partyGroupId          String?
+  createdAt             DateTime               @default(now())
+}
+
+// ---------- Reservas ----------
+
+enum ReservationType {
+  STANDARD
+  PEDIATRICIAN_REFERRAL
+  BIRTHDAY
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_IN
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+model Reservation {
+  id              String            @id @default(cuid())
+  orderId         String
+  order           Order             @relation(fields: [orderId], references: [id])
+  customerId      String
+  customer        Customer          @relation(fields: [customerId], references: [id])
+  reservationType ReservationType   @default(STANDARD)
+  status          ReservationStatus @default(PENDING)
+  startsAt        DateTime
+  endsAt          DateTime
+  partySize       Int
+  referralCodeId  String?
+  referralCode    ReferralCode?     @relation(fields: [referralCodeId], references: [id])
+  createdAt       DateTime          @default(now())
+}
+
+// Separado de Reservation para no tocar ese esquema cuando se definan las reglas de convenio
+// con pediatras/clínicas (tope de usos, vigencia, si requiere pago).
+model ReferralCode {
+  id              String    @id @default(cuid())
+  code            String    @unique
+  clinicName      String
+  doctorName      String?
+  requiresPayment Boolean   @default(true)
+  maxUses         Int?
+  usedCount       Int       @default(0)
+  validFrom       DateTime?
+  validUntil      DateTime?
+  active          Boolean   @default(true)
+
+  reservations Reservation[]
+}
+
+// ---------- Pagos ----------
+
+enum PaymentKind {
+  FULL
+  DEPOSIT
+  BALANCE
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  DECLINED
+  VOIDED
+  ERROR
+}
+
+model Payment {
+  id                 String        @id @default(cuid())
+  orderId            String
+  order              Order         @relation(fields: [orderId], references: [id])
+  kind               PaymentKind
+  amountCents        Int
+  status             PaymentStatus @default(PENDING)
+  wompiTransactionId String?       @unique
+  wompiReference     String        @unique
+  paymentMethodType  String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+}
+
+// Solo se usa desde la Fase 6 (cobro automático del saldo de cumpleaños vía tokenización).
+model PaymentSource {
+  id                   String   @id @default(cuid())
+  customerId           String
+  customer             Customer @relation(fields: [customerId], references: [id])
+  wompiPaymentSourceId String   @unique
+  type                 String
+  maskedIdentifier     String
+  createdAt            DateTime @default(now())
+}
+
+// Auditoría/idempotencia: Wompi puede reintentar el envío del mismo evento.
+model WompiWebhookEvent {
+  id           String   @id @default(cuid())
+  wompiEventId String   @unique
+  payload      Json
+  processed    Boolean  @default(false)
+  receivedAt   DateTime @default(now())
+}
+
+// ---------- Staff / Admin ----------
+
+enum StaffRole {
+  ADMIN
+  STAFF
+}
+
+model StaffUser {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         StaffRole @default(STAFF)
+  createdAt    DateTime  @default(now())
+}
