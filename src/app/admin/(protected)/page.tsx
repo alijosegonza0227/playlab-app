@@ -2,7 +2,10 @@ import { prisma } from "@/lib/prisma";
 import { formatCop } from "@/lib/money";
 import { lineItemLabel } from "@/lib/line-item-display";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AdminNav } from "@/components/admin-nav";
+import { markOrderCompleted, cancelOrder, reopenOrder } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +13,7 @@ const STATUS_LABELS: Record<string, string> = {
   CART: "Carrito (sin finalizar)",
   PENDING_PAYMENT: "Esperando pago",
   CONFIRMED: "Confirmado",
-  COMPLETED: "Completado",
+  COMPLETED: "Entregado",
   CANCELLED: "Cancelado",
 };
 
@@ -38,7 +41,10 @@ export default async function AdminOrdersPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="font-display mb-6 text-3xl font-extrabold tracking-tight">Pedidos</h1>
+      <h1 className="font-display mb-1 text-3xl font-extrabold tracking-tight">Panel admin</h1>
+      <AdminNav />
+
+      <h2 className="font-display mb-4 text-xl font-bold">Pedidos</h2>
 
       {orders.length === 0 && <p className="text-muted-foreground">Todavía no hay pedidos.</p>}
 
@@ -69,9 +75,33 @@ export default async function AdminOrdersPage() {
                   </li>
                 ))}
               </ul>
-              <div className="flex justify-between border-t pt-2 text-sm font-bold">
+              <div className="mb-3 flex justify-between border-t pt-2 text-sm font-bold">
                 <span>Total</span>
                 <span>{formatCop(order.totalCents)}</span>
+              </div>
+
+              <div className="flex justify-end gap-2">
+                {order.status === "CONFIRMED" && (
+                  <>
+                    <form action={markOrderCompleted.bind(null, order.id)}>
+                      <Button type="submit" size="sm" className="bg-rainbow-green hover:bg-rainbow-green/90">
+                        Marcar como entregado
+                      </Button>
+                    </form>
+                    <form action={cancelOrder.bind(null, order.id)}>
+                      <Button type="submit" size="sm" variant="outline" className="text-destructive">
+                        Cancelar
+                      </Button>
+                    </form>
+                  </>
+                )}
+                {order.status === "CANCELLED" && (
+                  <form action={reopenOrder.bind(null, order.id)}>
+                    <Button type="submit" size="sm" variant="outline">
+                      Reabrir como confirmado
+                    </Button>
+                  </form>
+                )}
               </div>
             </CardContent>
           </Card>
