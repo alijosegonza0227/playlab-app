@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, ShieldHalf } from "lucide-react";
 import { getCartOrder } from "@/lib/cart";
 import { Badge } from "@/components/ui/badge";
 import { PlayLabLogo } from "@/components/playlab-logo";
@@ -20,6 +20,12 @@ export async function SiteHeader() {
           </Link>
           <Link href="/reservas" className="transition-opacity hover:opacity-80">
             Reservas
+          </Link>
+          {/* TODO: quitar este acceso antes de lanzar la fase final al público — es solo para
+              configurar/probar el panel mientras se construye la app, los clientes reales no deben verlo. */}
+          <Link href="/admin" className="flex items-center gap-1.5 transition-opacity hover:opacity-80">
+            <ShieldHalf className="size-4" />
+            Admin
           </Link>
           <Link href="/cart" className="relative flex items-center gap-1.5 transition-opacity hover:opacity-80">
             <ShoppingCart className="size-5" />

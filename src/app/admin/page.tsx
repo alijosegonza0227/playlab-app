@@ -14,11 +14,18 @@ const STATUS_LABELS: Record<string, string> = {
   CANCELLED: "Cancelado",
 };
 
-const STATUS_VARIANTS: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-  PENDING_PAYMENT: "secondary",
-  CONFIRMED: "default",
-  COMPLETED: "outline",
-  CANCELLED: "destructive",
+const STATUS_BADGE_CLASS: Record<string, string> = {
+  PENDING_PAYMENT: "bg-rainbow-yellow text-foreground",
+  CONFIRMED: "bg-rainbow-green text-white",
+  COMPLETED: "bg-rainbow-purple text-white",
+  CANCELLED: "bg-rainbow-coral text-white",
+};
+
+const STATUS_BORDER_CLASS: Record<string, string> = {
+  PENDING_PAYMENT: "border-l-rainbow-yellow",
+  CONFIRMED: "border-l-rainbow-green",
+  COMPLETED: "border-l-rainbow-purple",
+  CANCELLED: "border-l-rainbow-coral",
 };
 
 export default async function AdminOrdersPage() {
@@ -31,22 +38,22 @@ export default async function AdminOrdersPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="mb-6 text-3xl font-extrabold tracking-tight">Pedidos</h1>
+      <h1 className="font-display mb-6 text-3xl font-extrabold tracking-tight">Pedidos</h1>
 
       {orders.length === 0 && <p className="text-muted-foreground">Todavía no hay pedidos.</p>}
 
       <div className="flex flex-col gap-4">
         {orders.map((order) => (
-          <Card key={order.id}>
+          <Card key={order.id} className={`border-l-4 ${STATUS_BORDER_CLASS[order.status] ?? "border-l-border"}`}>
             <CardHeader className="flex flex-row items-start justify-between gap-2">
               <div>
-                <CardTitle className="text-base">
+                <CardTitle className="font-display text-base">
                   {order.customer?.name ?? "Cliente sin nombre"} · {order.customer?.phone}
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">{order.deliveryAddress}</p>
                 <p className="text-xs text-muted-foreground">{order.createdAt.toLocaleString("es-CO")}</p>
               </div>
-              <Badge variant={STATUS_VARIANTS[order.status] ?? "outline"}>
+              <Badge className={STATUS_BADGE_CLASS[order.status] ?? ""}>
                 {STATUS_LABELS[order.status] ?? order.status}
               </Badge>
             </CardHeader>

@@ -31,7 +31,8 @@
       "PowerShell(npx prisma migrate dev --name park_visit_reservations --create-only)",
       "PowerShell(npx prisma migrate deploy)",
       "PowerShell(npx prisma migrate diff --from-migrations prisma/migrations --to-schema-datamodel prisma/schema.prisma --script)",
-      "PowerShell(npx prisma migrate resolve --rolled-back 20260625222119_park_visit_reservations)"
+      "PowerShell(npx prisma migrate resolve --rolled-back 20260625222119_park_visit_reservations)",
+      "PowerShell(npm install -D netlify-cli @netlify/plugin-nextjs)"
     ]
   }
 }
