@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { getCartOrder } from "@/lib/cart";
 import { formatCop } from "@/lib/money";
+import { lineItemLabel } from "@/lib/line-item-display";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -17,8 +18,11 @@ export default async function CartPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <h1 className="mb-2 text-2xl font-extrabold">Tu carrito está vacío</h1>
-        <p className="mb-6 text-muted-foreground">Agrega productos desde el menú para pedir a domicilio.</p>
-        <Button render={<Link href="/menu">Ver menú</Link>} />
+        <p className="mb-6 text-muted-foreground">Agrega productos desde el menú o reserva tu visita al parque.</p>
+        <div className="flex justify-center gap-3">
+          <Button render={<Link href="/menu">Ver menú</Link>} />
+          <Button render={<Link href="/reservas">Reservar visita</Link>} variant="outline" />
+        </div>
       </div>
     );
   }
@@ -32,23 +36,27 @@ export default async function CartPage() {
           <Card key={line.id}>
             <CardContent className="flex items-center justify-between gap-4 py-4">
               <div className="flex-1">
-                <p className="font-semibold">{line.product?.name}</p>
-                <p className="text-sm text-muted-foreground">{formatCop(line.unitPriceCents)} c/u</p>
+                <p className="font-semibold">{lineItemLabel(line)}</p>
+                {line.lineType === "PRODUCT" && (
+                  <p className="text-sm text-muted-foreground">{formatCop(line.unitPriceCents)} c/u</p>
+                )}
               </div>
 
-              <div className="flex items-center gap-2">
-                <form action={updateLineQuantity.bind(null, line.id, line.quantity - 1)}>
-                  <Button type="submit" size="icon" variant="outline" className="size-8">
-                    <Minus className="size-4" />
-                  </Button>
-                </form>
-                <span className="w-6 text-center font-medium">{line.quantity}</span>
-                <form action={updateLineQuantity.bind(null, line.id, line.quantity + 1)}>
-                  <Button type="submit" size="icon" variant="outline" className="size-8">
-                    <Plus className="size-4" />
-                  </Button>
-                </form>
-              </div>
+              {line.lineType === "PRODUCT" && (
+                <div className="flex items-center gap-2">
+                  <form action={updateLineQuantity.bind(null, line.id, line.quantity - 1)}>
+                    <Button type="submit" size="icon" variant="outline" className="size-8">
+                      <Minus className="size-4" />
+                    </Button>
+                  </form>
+                  <span className="w-6 text-center font-medium">{line.quantity}</span>
+                  <form action={updateLineQuantity.bind(null, line.id, line.quantity + 1)}>
+                    <Button type="submit" size="icon" variant="outline" className="size-8">
+                      <Plus className="size-4" />
+                    </Button>
+                  </form>
+                </div>
+              )}
 
               <p className="w-24 text-right font-bold">{formatCop(line.unitPriceCents * line.quantity)}</p>
 

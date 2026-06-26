@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateCartOrder, recalculateOrderTotals } from "@/lib/cart";
+import { getOrCreateCartOrder, recalculateOrderTotals, ensureFulfillmentType } from "@/lib/cart";
 import { DELIVERABLE_CATEGORIES } from "@/lib/catalog";
 
 export async function addProductToCart(productId: string) {
@@ -12,6 +12,7 @@ export async function addProductToCart(productId: string) {
   }
 
   const order = await getOrCreateCartOrder();
+  await ensureFulfillmentType(order, "DELIVERY");
 
   const existingLine = order.lineItems.find((line) => line.productId === productId && line.lineType === "PRODUCT");
 

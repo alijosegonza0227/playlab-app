@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getActiveOrderForCheckout } from "@/lib/cart";
 import { getWompiPublicKey, isWompiConfigured } from "@/lib/wompi/client";
 import { formatCop } from "@/lib/money";
+import { lineItemLabel } from "@/lib/line-item-display";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckoutForm } from "./checkout-form";
@@ -35,11 +36,12 @@ export default async function CheckoutPage() {
         </CardHeader>
         <CardContent className="flex flex-col gap-1">
           {order.lineItems.map((line) => (
-            <div key={line.id} className="flex justify-between text-sm">
+            <div key={line.id} className="flex justify-between gap-3 text-sm">
               <span>
-                {line.quantity}x {line.product?.name}
+                {line.lineType === "PRODUCT" ? `${line.quantity}x ` : ""}
+                {lineItemLabel(line)}
               </span>
-              <span>{formatCop(line.unitPriceCents * line.quantity)}</span>
+              <span className="whitespace-nowrap">{formatCop(line.unitPriceCents * line.quantity)}</span>
             </div>
           ))}
           <div className="mt-2 flex justify-between border-t pt-2 font-bold">
@@ -49,7 +51,7 @@ export default async function CheckoutPage() {
         </CardContent>
       </Card>
 
-      {!readyToPay && <CheckoutForm />}
+      {!readyToPay && <CheckoutForm needsDeliveryAddress={order.fulfillmentTypes.includes("DELIVERY")} />}
 
       {readyToPay && !isWompiConfigured() && (
         <div className="flex flex-col gap-3 rounded-md border border-amber-300 bg-amber-50 p-4 text-amber-900">

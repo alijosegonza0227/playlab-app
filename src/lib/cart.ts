@@ -1,13 +1,16 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import type { Prisma } from "@/generated/prisma/client";
+import type { FulfillmentType, Prisma } from "@/generated/prisma/client";
 import { calculateOrderTotal } from "@/lib/pricing/calculateOrderTotal";
 
 const CART_COOKIE = "playlab_cart_order_id";
 
 const lineItemsInclude = {
-  lineItems: { include: { product: true }, orderBy: { createdAt: "asc" } },
+  lineItems: {
+    include: { product: true, timeRate: true, reservation: true },
+    orderBy: { createdAt: "asc" },
+  },
 } satisfies Prisma.OrderInclude;
 
 type CartOrder = Prisma.OrderGetPayload<{ include: typeof lineItemsInclude }>;
@@ -47,7 +50,7 @@ export async function getOrCreateCartOrder(): Promise<CartOrder> {
   if (existing) return existing;
 
   const order = await prisma.order.create({
-    data: { status: "CART", fulfillmentTypes: ["DELIVERY"] },
+    data: { status: "CART", fulfillmentTypes: [] },
     include: lineItemsInclude,
   });
 
@@ -61,6 +64,14 @@ export async function getOrCreateCartOrder(): Promise<CartOrder> {
   });
 
   return order;
+}
+
+export async function ensureFulfillmentType(order: { id: string; fulfillmentTypes: FulfillmentType[] }, type: FulfillmentType) {
+  if (order.fulfillmentTypes.includes(type)) return;
+  await prisma.order.update({
+    where: { id: order.id },
+    data: { fulfillmentTypes: { push: type } },
+  });
 }
 
 export async function clearCartCookie() {

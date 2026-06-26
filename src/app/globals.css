@@ -9,7 +9,14 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-baloo);
+  --font-display: var(--font-baloo);
+  --color-rainbow-purple: var(--rainbow-purple);
+  --color-rainbow-green: var(--rainbow-green);
+  --color-rainbow-yellow: var(--rainbow-yellow);
+  --color-rainbow-orange: var(--rainbow-orange);
+  --color-rainbow-coral: var(--rainbow-coral);
+  --color-rainbow-sky: var(--rainbow-sky);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -67,6 +74,12 @@
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: #1c9fe0;
+  --rainbow-purple: #6c63ff;
+  --rainbow-green: #3dbb6d;
+  --rainbow-yellow: #ffc93c;
+  --rainbow-orange: #ff9f5a;
+  --rainbow-coral: #ff6b6b;
+  --rainbow-sky: #38b6e8;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -127,4 +140,14 @@
   html {
     @apply font-sans;
   }
+}
+
+.playlab-sky-bg {
+  background-color: var(--rainbow-sky);
+  background-image:
+    radial-gradient(circle at 12% 20%, rgba(255, 255, 255, 0.35) 0 6px, transparent 7px),
+    radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.3) 0 5px, transparent 6px),
+    radial-gradient(circle at 92% 70%, rgba(255, 255, 255, 0.3) 0 7px, transparent 8px),
+    radial-gradient(circle at 6% 80%, rgba(255, 255, 255, 0.3) 0 6px, transparent 7px),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.12) 0 60px, transparent 61px);
 }

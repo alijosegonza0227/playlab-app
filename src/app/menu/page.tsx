@@ -7,6 +7,8 @@ import { addProductToCart } from "./actions";
 
 export const dynamic = "force-dynamic";
 
+const RAINBOW_TEXT = ["text-rainbow-purple", "text-rainbow-green", "text-rainbow-orange", "text-rainbow-coral", "text-primary"];
+
 export default async function MenuPage() {
   const products = await prisma.product.findMany({
     where: { active: true },
@@ -20,15 +22,17 @@ export default async function MenuPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="mb-1 text-3xl font-extrabold tracking-tight">Lista de precios</h1>
+      <h1 className="font-display mb-1 text-3xl font-extrabold tracking-tight">Lista de precios</h1>
       <p className="mb-8 text-muted-foreground">
         Agrega lo que quieras pedir a domicilio. La decoración se reserva al armar tu fiesta de cumpleaños.
       </p>
 
       <div className="flex flex-col gap-10">
-        {productsByCategory.map(({ category, products: items }) => (
+        {productsByCategory.map(({ category, products: items }, i) => (
           <section key={category}>
-            <h2 className="mb-4 text-xl font-bold text-primary">{CATEGORY_LABELS[category]}</h2>
+            <h2 className={`font-display mb-4 text-xl font-bold ${RAINBOW_TEXT[i % RAINBOW_TEXT.length]}`}>
+              {CATEGORY_LABELS[category]}
+            </h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {items.map((product) => {
                 const canOrderDelivery = DELIVERABLE_CATEGORIES.includes(product.category);

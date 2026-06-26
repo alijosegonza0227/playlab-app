@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { formatCop } from "@/lib/money";
+import { lineItemLabel } from "@/lib/line-item-display";
 import { OrderStatusPoller } from "./order-status-poller";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,7 @@ export default async function ConfirmacionPage({
   const order = orderId
     ? await prisma.order.findUnique({
         where: { id: orderId },
-        include: { lineItems: { include: { product: true } } },
+        include: { lineItems: { include: { product: true, timeRate: true, reservation: true } } },
       })
     : null;
 
@@ -34,11 +35,12 @@ export default async function ConfirmacionPage({
 
       <div className="mt-6 flex flex-col gap-1">
         {order.lineItems.map((line) => (
-          <div key={line.id} className="flex justify-between text-sm">
+          <div key={line.id} className="flex justify-between gap-3 text-sm">
             <span>
-              {line.quantity}x {line.product?.name}
+              {line.lineType === "PRODUCT" ? `${line.quantity}x ` : ""}
+              {lineItemLabel(line)}
             </span>
-            <span>{formatCop(line.unitPriceCents * line.quantity)}</span>
+            <span className="whitespace-nowrap">{formatCop(line.unitPriceCents * line.quantity)}</span>
           </div>
         ))}
         <div className="mt-2 flex justify-between border-t pt-2 font-bold">

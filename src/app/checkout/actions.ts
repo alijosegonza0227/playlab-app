@@ -12,7 +12,7 @@ const checkoutSchema = z.object({
   name: z.string().min(2, "Ingresa tu nombre completo"),
   phone: z.string().min(7, "Ingresa un número de teléfono válido"),
   email: z.string().email("Ingresa un email válido"),
-  deliveryAddress: z.string().min(5, "Ingresa la dirección de entrega"),
+  deliveryAddress: z.string().optional(),
 });
 
 export type CheckoutFormState = {
@@ -38,6 +38,10 @@ export async function submitCheckoutInfo(_prevState: CheckoutFormState, formData
 
   const { name, phone, email, deliveryAddress } = parsed.data;
 
+  if (order.fulfillmentTypes.includes("DELIVERY") && !deliveryAddress?.trim()) {
+    return { error: "Ingresa la dirección de entrega para tu pedido de domicilio." };
+  }
+
   const customer = await prisma.customer.upsert({
     where: { phone },
     update: { name, email },
@@ -50,6 +54,10 @@ export async function submitCheckoutInfo(_prevState: CheckoutFormState, formData
     prisma.order.update({
       where: { id: order.id },
       data: { customerId: customer.id, deliveryAddress, status: "PENDING_PAYMENT" },
+    }),
+    prisma.reservation.updateMany({
+      where: { orderId: order.id },
+      data: { customerId: customer.id },
     }),
     prisma.payment.create({
       data: {

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { formatCop } from "@/lib/money";
+import { lineItemLabel } from "@/lib/line-item-display";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -25,7 +26,7 @@ export default async function AdminOrdersPage() {
     where: { status: { not: "CART" } },
     orderBy: { createdAt: "desc" },
     take: 50,
-    include: { customer: true, lineItems: { include: { product: true } } },
+    include: { customer: true, lineItems: { include: { product: true, timeRate: true, reservation: true } } },
   });
 
   return (
@@ -52,11 +53,12 @@ export default async function AdminOrdersPage() {
             <CardContent>
               <ul className="mb-2 flex flex-col gap-0.5 text-sm">
                 {order.lineItems.map((line) => (
-                  <li key={line.id} className="flex justify-between">
+                  <li key={line.id} className="flex justify-between gap-3">
                     <span>
-                      {line.quantity}x {line.product?.name}
+                      {line.lineType === "PRODUCT" ? `${line.quantity}x ` : ""}
+                      {lineItemLabel(line)}
                     </span>
-                    <span>{formatCop(line.unitPriceCents * line.quantity)}</span>
+                    <span className="whitespace-nowrap">{formatCop(line.unitPriceCents * line.quantity)}</span>
                   </li>
                 ))}
               </ul>

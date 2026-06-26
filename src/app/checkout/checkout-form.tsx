@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 
 const initialState: CheckoutFormState = {};
 
-export function CheckoutForm() {
+export function CheckoutForm({ needsDeliveryAddress }: { needsDeliveryAddress: boolean }) {
   const [state, formAction, pending] = useActionState(submitCheckoutInfo, initialState);
 
   return (
@@ -25,10 +25,12 @@ export function CheckoutForm() {
         <Label htmlFor="email">Email</Label>
         <Input id="email" name="email" type="email" required placeholder="Ej. ana@email.com" />
       </div>
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="deliveryAddress">Dirección de entrega</Label>
-        <Input id="deliveryAddress" name="deliveryAddress" required placeholder="Calle, número, barrio, ciudad" />
-      </div>
+      {needsDeliveryAddress && (
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="deliveryAddress">Dirección de entrega</Label>
+          <Input id="deliveryAddress" name="deliveryAddress" required placeholder="Calle, número, barrio, ciudad" />
+        </div>
+      )}
 
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}
 
