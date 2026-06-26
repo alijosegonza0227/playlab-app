@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { CATEGORY_LABELS, CATEGORY_ORDER, DELIVERABLE_CATEGORIES } from "@/lib/catalog";
 import { formatCop } from "@/lib/money";
@@ -37,31 +38,44 @@ export default async function MenuPage() {
               {items.map((product) => {
                 const canOrderDelivery = DELIVERABLE_CATEGORIES.includes(product.category);
                 return (
-                  <Card key={product.id}>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="flex items-start justify-between gap-2 text-base">
-                        <span>{product.name}</span>
-                        <span className="whitespace-nowrap font-bold text-primary">
-                          {formatCop(product.priceCents)}
-                        </span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex items-end justify-between gap-2">
-                      {product.description ? (
-                        <p className="text-sm text-muted-foreground">{product.description}</p>
-                      ) : (
-                        <span />
-                      )}
-                      {canOrderDelivery ? (
-                        <form action={addProductToCart.bind(null, product.id)}>
-                          <Button type="submit" size="sm">
-                            Agregar
-                          </Button>
-                        </form>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">Disponible en cumpleaños (pronto)</span>
-                      )}
-                    </CardContent>
+                  <Card key={product.id} className="flex-row overflow-hidden p-0">
+                    {product.imageUrl && (
+                      <div className="relative h-auto w-24 flex-shrink-0 sm:w-28">
+                        <Image
+                          src={product.imageUrl}
+                          alt={product.name}
+                          fill
+                          sizes="112px"
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="flex flex-1 flex-col">
+                      <CardHeader className="pb-2 pt-4">
+                        <CardTitle className="flex items-start justify-between gap-2 text-base">
+                          <span>{product.name}</span>
+                          <span className="whitespace-nowrap font-bold text-primary">
+                            {formatCop(product.priceCents)}
+                          </span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="flex flex-1 items-end justify-between gap-2 pb-4">
+                        {product.description ? (
+                          <p className="text-sm text-muted-foreground">{product.description}</p>
+                        ) : (
+                          <span />
+                        )}
+                        {canOrderDelivery ? (
+                          <form action={addProductToCart.bind(null, product.id)}>
+                            <Button type="submit" size="sm">
+                              Agregar
+                            </Button>
+                          </form>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">Disponible en cumpleaños (pronto)</span>
+                        )}
+                      </CardContent>
+                    </div>
                   </Card>
                 );
               })}
