@@ -1,0 +1,1 @@
+ALTER TABLE "Customer" ADD COLUMN     "loyaltyVisitCount" INTEGER NOT NULL DEFAULT 0;

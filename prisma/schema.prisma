@@ -85,11 +85,15 @@ model PromotionRule {
 // ---------- Clientes ----------
 
 model Customer {
-  id        String   @id @default(cuid())
-  name      String
-  phone     String   @unique
-  email     String?
-  createdAt DateTime @default(now())
+  id                String   @id @default(cuid())
+  name              String
+  phone             String   @unique
+  email             String?
+  createdAt         DateTime @default(now())
+  // Cuponera de fidelización: se suma 1 cada vez que el staff marca "llegada" en una
+  // reserva. Al llegar a 6, el staff redime manualmente la entrada gratis (no automático)
+  // y reinicia el contador a 0 desde el panel admin.
+  loyaltyVisitCount Int      @default(0)
 
   orders         Order[]
   reservations   Reservation[]
@@ -283,4 +287,14 @@ model StaffUser {
   passwordHash String
   role         StaffRole @default(STAFF)
   createdAt    DateTime  @default(now())
+}
+
+// ---------- Configuración editable desde el panel admin ----------
+
+// Tabla genérica clave/valor para ajustes que el negocio quiere poder cambiar sin tocar
+// código (ej. cuántas visitas se necesitan para la entrada gratis de la cuponera).
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
 }

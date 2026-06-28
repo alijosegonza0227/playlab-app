@@ -1,0 +1,3 @@
+export const DEFAULT_LOYALTY_VISITS_GOAL = 6;
+export const LOYALTY_VISITS_GOAL_MIN = 1;
+export const LOYALTY_VISITS_GOAL_MAX = 7;

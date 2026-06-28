@@ -15,6 +15,12 @@ export function AdminNav() {
       >
         Reservas
       </Link>
+      <Link
+        href="/admin/configuracion"
+        className="font-display rounded-full px-4 py-1.5 text-sm font-bold hover:bg-muted"
+      >
+        Configuración
+      </Link>
     </nav>
   );
 }

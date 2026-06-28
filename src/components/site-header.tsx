@@ -21,6 +21,9 @@ export async function SiteHeader() {
           <Link href="/reservas" className="transition-opacity hover:opacity-80">
             Reservas
           </Link>
+          <Link href="/mi-cupon" className="transition-opacity hover:opacity-80">
+            Mi cupón
+          </Link>
           {/* TODO: quitar este acceso antes de lanzar la fase final al público — es solo para
               configurar/probar el panel mientras se construye la app, los clientes reales no deben verlo. */}
           <Link href="/admin" className="flex items-center gap-1.5 transition-opacity hover:opacity-80">

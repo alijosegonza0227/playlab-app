@@ -13,6 +13,35 @@ export async function updateReservationStatus(reservationId: string, status: Res
   revalidatePath("/admin/reservas");
 }
 
+/**
+ * Solo se permite la transición CONFIRMED -> CHECKED_IN desde aquí (no el setter genérico)
+ * porque además suma 1 a la cuponera de fidelización del cliente; el `where` con status
+ * evita que un doble clic vuelva a sumar el contador.
+ */
+export async function checkInReservation(reservationId: string) {
+  await prisma.$transaction(async (tx) => {
+    const reservation = await tx.reservation.update({
+      where: { id: reservationId, status: "CONFIRMED" },
+      data: { status: "CHECKED_IN" },
+    });
+    if (reservation.customerId) {
+      await tx.customer.update({
+        where: { id: reservation.customerId },
+        data: { loyaltyVisitCount: { increment: 1 } },
+      });
+    }
+  });
+  revalidatePath("/admin/reservas");
+}
+
+export async function redeemLoyaltyCoupon(customerId: string) {
+  await prisma.customer.update({
+    where: { id: customerId },
+    data: { loyaltyVisitCount: 0 },
+  });
+  revalidatePath("/admin/reservas");
+}
+
 const rescheduleSchema = z.object({
   date: z.string().min(1),
   time: z.string().min(1),

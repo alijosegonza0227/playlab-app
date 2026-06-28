@@ -5,7 +5,8 @@ import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AdminNav } from "@/components/admin-nav";
 import { TIME_RATE_LABELS } from "@/lib/timerate";
-import { updateReservationStatus } from "./actions";
+import { getLoyaltyVisitsGoal } from "@/lib/loyalty-server";
+import { updateReservationStatus, checkInReservation, redeemLoyaltyCoupon } from "./actions";
 import { RescheduleForm } from "./reschedule-form";
 
 export const dynamic = "force-dynamic";
@@ -38,6 +39,7 @@ const STATUS_BORDER_CLASS: Record<string, string> = {
 };
 
 export default async function AdminReservasPage() {
+  const loyaltyGoal = await getLoyaltyVisitsGoal();
   const reservations = await prisma.reservation.findMany({
     where: { order: { status: { not: "CART" } } },
     orderBy: { startsAt: "asc" },
@@ -90,6 +92,28 @@ export default async function AdminReservasPage() {
                 </Badge>
               </CardHeader>
               <CardContent className="flex flex-col gap-3">
+                {reservation.order.customer && (
+                  <div className="flex items-center justify-between gap-3 rounded-lg bg-muted px-3 py-2 text-sm">
+                    <span>
+                      🎟️ Cuponera: {Math.min(reservation.order.customer.loyaltyVisitCount, loyaltyGoal)}/
+                      {loyaltyGoal} visitas
+                      {reservation.order.customer.loyaltyVisitCount >= loyaltyGoal &&
+                        " · 🎉 ¡Entrada gratis disponible!"}
+                    </span>
+                    {reservation.order.customer.loyaltyVisitCount >= loyaltyGoal && (
+                      <form action={redeemLoyaltyCoupon.bind(null, reservation.order.customer.id)}>
+                        <ConfirmSubmitButton
+                          size="sm"
+                          variant="outline"
+                          confirmMessage="¿Confirmas que ya usaron la entrada gratis? Esto reinicia el contador a 0."
+                        >
+                          Marcar cupón usado
+                        </ConfirmSubmitButton>
+                      </form>
+                    )}
+                  </div>
+                )}
+
                 <RescheduleForm reservationId={reservation.id} defaultDate={dateValue} defaultTime={timeValue} />
 
                 <div className="flex flex-wrap justify-end gap-2">
@@ -101,7 +125,7 @@ export default async function AdminReservasPage() {
                     </form>
                   )}
                   {reservation.status === "CONFIRMED" && (
-                    <form action={updateReservationStatus.bind(null, reservation.id, "CHECKED_IN")}>
+                    <form action={checkInReservation.bind(null, reservation.id)}>
                       <Button type="submit" size="sm" className="bg-rainbow-sky hover:bg-rainbow-sky/90">
                         Marcar llegada
                       </Button>

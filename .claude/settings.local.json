@@ -42,7 +42,24 @@
       "PowerShell(if \\(-not \\(Test-Path \"c:\\\\Users\\\\ALI\\\\play lab\\\\public\\\\products\"\\)\\) { New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\ALI\\\\play lab\\\\public\\\\products\" }; Get-ChildItem \"c:\\\\Users\\\\ALI\\\\play lab\\\\public\\\\products\")",
       "WebFetch(domain:commons.wikimedia.org)",
       "PowerShell(Get-ChildItem \"c:\\\\Users\\\\ALI\\\\play lab\\\\public\\\\products\" | Select-Object Name, Length, @{N='KB';E={[math]::Round\\($_.Length/1KB,1\\)}})",
-      "PowerShell(npx tsx prisma/seed-images.ts)"
+      "PowerShell(npx tsx prisma/seed-images.ts)",
+      "PowerShell(if \\(-not \\(Test-Path \"c:\\\\Users\\\\ALI\\\\play lab\\\\public\\\\products\"\\)\\) { New-Item -ItemType Directory -Force \"c:\\\\Users\\\\ALI\\\\play lab\\\\public\\\\products\" }; Get-ChildItem \"c:\\\\Users\\\\ALI\\\\play lab\\\\public\\\\products\" -ErrorAction SilentlyContinue)",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\ALI\\\\play lab\\\\public\\\\products\")",
+      "PowerShell($dest = \"c:\\\\Users\\\\ALI\\\\play lab\\\\public\\\\products\"; if \\(-not \\(Test-Path $dest\\)\\) { New-Item -ItemType Directory -Force -Path $dest }; Get-ChildItem $dest -ErrorAction SilentlyContinue)",
+      "PowerShell($dir = \"c:\\\\Users\\\\ALI\\\\play lab\\\\public\\\\products\"; if \\(-not \\(Test-Path $dir\\)\\) { New-Item -ItemType Directory -Force -Path $dir }; Get-ChildItem $dir)",
+      "PowerShell(Get-Command magick -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Command convert -ErrorAction SilentlyContinue)",
+      "PowerShell(python --version 2>$null)",
+      "PowerShell(Get-Command python -ErrorAction SilentlyContinue)",
+      "PowerShell(python -c \"from PIL import Image; print\\('PIL OK'\\)\" 2>&1)",
+      "WebFetch(domain:www.pexels.com)",
+      "WebFetch(domain:pixabay.com)",
+      "PowerShell(& \"C:\\\\Users\\\\ALI\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-ALI-play-lab\\\\142c5dee-2d05-48de-ade4-61de434cb207\\\\scratchpad\\\\resize.ps1\")",
+      "PowerShell(npx prisma migrate dev --name add_loyalty_visit_count)",
+      "PowerShell(Rename-Item \"prisma\\\\migrations\\\\20260625222119_park_visit_reservations\" \"20260625230100_park_visit_reservations\")",
+      "PowerShell(npx prisma db execute --file scratch-fix-migration.sql)",
+      "PowerShell(npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script)",
+      "PowerShell(npx prisma db execute --file scratch-add-loyalty.sql)"
     ]
   }
 }
